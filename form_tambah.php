@@ -8,7 +8,7 @@ $result = mysqli_query($conn, $query);
 $data = mysqli_fetch_assoc($result);
 
 if ($data) {
-    $last_isbn = $data['isbn']; // Contoh: BK-02
+    $last_isbn = $data['isbn'];
     $parts = explode('-', $last_isbn);
     $prefix = $parts[0];
     $number = (int) $parts[1];
@@ -28,15 +28,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $tahun_terbit = $_POST['tahun_terbit'];
     $jumlah = $_POST['jumlah'];
 
-    $query = "INSERT INTO buku (isbn, judul, pengarang, penerbit, tahun_terbit, jumlah)
-              VALUES ('$isbn', '$judul', '$pengarang', '$penerbit', '$tahun_terbit', '$jumlah')";
+    $foto_name = $_FILES['foto']['name'];
+    $foto_tmp = $_FILES['foto']['tmp_name'];
 
-    $result = mysqli_query($conn, $query);
+    // Buat nama file unik
+    $foto_new_name = uniqid('buku_') . '_' . basename($foto_name);
+    
+    $target_dir = "uploads/";
+    $target_path = $target_dir . $foto_new_name;
 
-    if ($result) {
-        echo "<script>alert('Data berhasil disimpan'); window.location.href='index.php';</script>";
+    if (move_uploaded_file($foto_tmp, $target_path)) {
+        $query = "INSERT INTO buku (isbn, judul, pengarang, penerbit, tahun_terbit, jumlah, foto)
+              VALUES ('$isbn', '$judul', '$pengarang', '$penerbit', '$tahun_terbit', '$jumlah', '$foto_new_name')";
+
+        $result = mysqli_query($conn, $query);
+
+        if ($result) {
+            echo "<script>alert('Data berhasil disimpan'); window.location.href='index.php';</script>";
+        } else {
+            echo "Gagal menyimpan data: " . mysqli_error($conn);
+        }
     } else {
-        echo "Gagal menyimpan data: " . mysqli_error($conn);
+        echo "Upload foto gagal!";
     }
 }
 ?>
@@ -65,7 +78,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <!-- Page body -->
     <div class="page-body p-4">
         <div class="container-xl">
-            <form action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="POST">
+            <form action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="POST"
+                enctype="multipart/form-data">
                 <div class="pb-3">
                     <h3>Tambahkan Buku</h3>
                 </div>
@@ -103,6 +117,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <label class="form-label">Jumlah</label>
                                 <input type="number" name="jumlah" class="form-control"
                                     placeholder="Masukkan Jumlah Buku" required>
+                            </div>
+                            <div class="md-3">
+                                <label for="" class="form-label">Foto</label>
+                                <input type="file" class="form-control" name="foto" id="foto"
+                                    placeholder="Masukkan foto" required>
                             </div>
                             <div class="mt-4">
                                 <button type="submit" class="btn btn-primary">Simpan</button>

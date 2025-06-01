@@ -23,13 +23,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $tahun_terbit = $_POST['tahun_terbit'];
     $jumlah = $_POST['jumlah'];
 
+    // Default: pakai foto lama
+    $foto = $data['foto'];
+
+    // Jika ada upload file baru
+    if ($_FILES['foto']['name']) {
+        $target_dir = "uploads/";
+        $target_file = $target_dir . basename($_FILES["foto"]["name"]);
+
+        if (move_uploaded_file($_FILES["foto"]["tmp_name"], $target_file)) {
+            $foto = $_FILES["foto"]["name"];
+        }
+    }
+
     $updateQuery = "UPDATE buku SET 
                       isbn = '$isbn',
                       judul = '$judul',
                       pengarang = '$pengarang',
                       penerbit = '$penerbit',
                       tahun_terbit = '$tahun_terbit',
-                      jumlah = '$jumlah'
+                      jumlah = '$jumlah',
+                      foto = '$foto'
                     WHERE id_buku = $id_buku";
 
     if (mysqli_query($conn, $updateQuery)) {
@@ -39,6 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         echo "Gagal memperbarui data: " . mysqli_error($conn);
     }
 }
+
 ?>
 
 <!doctype html>
@@ -64,7 +79,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <!-- Page body -->
     <div class="page-body p-4">
         <div class="container-xl">
-            <form action="<?= htmlspecialchars($_SERVER['PHP_SELF'] . '?id=' . $id_buku) ?>" method="POST">
+            <form action="<?= htmlspecialchars($_SERVER['PHP_SELF'] . '?id=' . $id_buku) ?>" method="POST"
+                enctype="multipart/form-data">
                 <div class="pb-3">
                     <h3>Update Data Buku</h3>
                 </div>
@@ -102,6 +118,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <label class="form-label">Jumlah</label>
                                 <input type="number" name="jumlah" class="form-control" value="<?= $data['jumlah'] ?>"
                                     required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Ganti Foto (Opsional)</label>
+                                <input type="file" name="foto" class="form-control">
                             </div>
                             <div class="mt-4">
                                 <button type="submit" class="btn btn-primary">Simpan</button>

@@ -66,8 +66,6 @@ $data = mysqli_fetch_assoc($result);
                                 <input type="text" name="penerbit" class="form-control" value="<?= $data['penerbit'] ?>"
                                     required>
                             </div>
-                        </div>
-                        <div class="col-md-6">
                             <div class="mb-3">
                                 <label class="form-label">Tahun Terbit</label>
                                 <input type="number" name="tahun_terbit" class="form-control"
@@ -77,6 +75,12 @@ $data = mysqli_fetch_assoc($result);
                                 <label class="form-label">Jumlah</label>
                                 <input type="number" name="jumlah" class="form-control" value="<?= $data['jumlah'] ?>"
                                     required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="text-center pt-3">
+                                <img src="uploads/<?= htmlspecialchars($data['foto']) ?>" alt="Foto Buku"
+                                    class="img-fluid rounded shadow" width="400">
                             </div>
                         </div>
                     </div>
